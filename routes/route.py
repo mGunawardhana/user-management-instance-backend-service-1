@@ -6,6 +6,9 @@ from bson import ObjectId
 
 router = APIRouter()
 
+@router.get("/", response_model=dict)
+async def root():
+    return {"message": "Hello From Phoenix Instance"}
 
 @router.get("/todos", response_model=dict)
 async def get_todos():
