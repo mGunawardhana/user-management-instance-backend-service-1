@@ -3,9 +3,7 @@ from pymongo import MongoClient
 import os
 from pymongo import MongoClient
 
-MONGODB_URL = os.getenv('MONGODB_CLUSTER_URL')
-
-client = MongoClient(MONGODB_URL)
+client = MongoClient("mongodb+srv://admin:R7pYP4bwqKEo3J7j@cluster0.vrrkifh.mongodb.net/?retryWrites=true&w=majority")
 
 db = client.todo_db
 
