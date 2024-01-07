@@ -6,11 +6,15 @@ from bson import ObjectId
 
 router = APIRouter()
 
+def handle_exception(e, message):
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail=f"{message}: {str(e)}"
+    )
 
 @router.get("/", response_model=dict)
 async def root():
     return {"message": "Hello From Phoenix Instance"}
-
 
 @router.get("/fetch-all-users", response_model=dict)
 async def fetch_all_users():
@@ -18,85 +22,40 @@ async def fetch_all_users():
         todos = list_serial(collection_name.find())
         return {"data": todos, "message": "Successfully fetched todos", "status_code": 200}
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to fetch todos: {str(e)}",
-        )
-
+        handle_exception(e, "Failed to fetch todos")
 
 @router.post("/create-user", response_model=dict)
 async def create_user(todo: Todo):
     try:
         inserted_id = collection_name.insert_one(dict(todo)).inserted_id
-        if inserted_id:
-            return {
-                "data": {"id": str(inserted_id)},
-                "message": "Todo created successfully",
-                "status_code": 201
-            }
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create todo"
-            )
+        return inserted_id and {"data": {"id": str(inserted_id)},
+                                "message": "Todo created successfully", "status_code": 201}
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create todo: {str(e)}"
-        )
-
+        handle_exception(e, "Failed to create todo")
 
 @router.put("/{user_id}", response_model=dict)
 async def update_user(user_id: str, todo: Todo):
     try:
-        # Convert the user_id to ObjectId for querying MongoDB
-        user_object_id = ObjectId(user_id)
-
-        # Perform the update operation
-        result = collection_name.find_one_and_update(
-            {"_id": user_object_id},
-            {"$set": dict(todo)}
-        )
-
-        if result:
-            return {
-                "data": {"id": user_id},
-                "message": "User updated successfully",
-                "status_code": 200
-            }
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User with ID {user_id} not found"
-            )
+        result = collection_name.find_one_and_update({"_id": ObjectId(user_id)}, {"$set": dict(todo)})
+        return result and {"data": {"id": user_id},
+                           "message": "User updated successfully", "status_code": 200}
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update user: {str(e)}"
-        )
+        handle_exception(e, f"Failed to update user")
 
 @router.delete("/{user_id}", response_model=dict)
 async def delete_user(user_id: str):
     try:
-        # Convert the user_id to ObjectId for querying MongoDB
-        user_object_id = ObjectId(user_id)
-
-        # Perform the delete operation
-        result = collection_name.delete_one({"_id": user_object_id})
-
-        if result.deleted_count == 1:
-            return {
-                "data": {"id": user_id},
-                "message": "User deleted successfully",
-                "status_code": 200
-            }
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User with ID {user_id} not found"
-            )
+        result = collection_name.delete_one({"_id": ObjectId(user_id)})
+        return result.deleted_count == 1 and {"data": {"id": user_id},
+                                              "message": "User deleted successfully", "status_code": 200}
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete user: {str(e)}"
-        )
+        handle_exception(e, f"Failed to delete user")
+
+@router.get("/{user_id}", response_model=dict)
+async def get_user_by_id(user_id: str):
+    try:
+        user_data = collection_name.find_one({"_id": ObjectId(user_id)})
+        return user_data and {"data": user_data,
+                              "message": "User retrieved successfully", "status_code": 200}
+    except Exception as e:
+        handle_exception(e, f"Failed to retrieve user")
