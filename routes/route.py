@@ -45,6 +45,7 @@ async def fetch_all_users():
     """
     try:
         users = list_serial(collection_name.find())
+        logger.info("Successfully fetched users")
         return {"data": users, "message": "Successfully fetched users", "status_code": 200}
     except Exception as e:
         handle_exception(e, "Failed to fetch users")
@@ -62,6 +63,7 @@ async def create_user(user: User):
     """
     try:
         inserted_id = collection_name.insert_one(dict(user)).inserted_id
+        logger.info("User created successfully")
         return inserted_id and {"data": {"id": str(inserted_id)},
                                 "message": "User created successfully", "status_code": 201}
     except Exception as e:
@@ -81,6 +83,7 @@ async def update_user(user_id: str, user: User):
     """
     try:
         result = collection_name.find_one_and_update({"_id": ObjectId(user_id)}, {"$set": dict(user)})
+        logger.info("User updated successfully")
         return result and {"data": {"id": user_id},
                            "message": "User updated successfully", "status_code": 200}
     except Exception as e:
@@ -99,6 +102,7 @@ async def delete_user(user_id: str):
     """
     try:
         result = collection_name.delete_one({"_id": ObjectId(user_id)})
+        logger.info("User deleted successfully")
         return result.deleted_count == 1 and {"data": {"id": user_id},
                                               "message": "User deleted successfully", "status_code": 200}
     except Exception as e:
@@ -117,8 +121,10 @@ async def get_user_by_id(user_id: str):
     """
     try:
         user_data = collection_name.find_one({"_id": ObjectId(user_id)})
+        logger.info("User retrieved successfully")
         return user_data and {"data": user_data,
                               "message": "User retrieved successfully", "status_code": 200}
     except Exception as e:
         handle_exception(e, f"Failed to retrieve user")
+
 
