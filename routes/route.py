@@ -42,6 +42,7 @@ async def update_user(user_id: str, user: User):
     except Exception as e:
         handle_exception(e, f"Failed to update user")
 
+
 @router.delete("/{user_id}", response_model=dict)
 async def delete_user(user_id: str):
     try:
