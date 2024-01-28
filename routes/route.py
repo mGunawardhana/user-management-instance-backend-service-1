@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
+from starlette.middleware.cors import CORSMiddleware
+
 from models.users import User
 from config.database import collection_name
 from schema.schemas import list_serial
@@ -33,6 +35,7 @@ async def create_user(user: User):
     except Exception as e:
         handle_exception(e, "Failed to create todo")
 
+
 @router.put("/{user_id}", response_model=dict)
 async def update_user(user_id: str, user: User):
     try:
@@ -51,6 +54,7 @@ async def delete_user(user_id: str):
                                               "message": "User deleted successfully", "status_code": 200}
     except Exception as e:
         handle_exception(e, f"Failed to delete user")
+
 
 @router.get("/{user_id}", response_model=dict)
 async def get_user_by_id(user_id: str):

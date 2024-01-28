@@ -8,7 +8,6 @@ WORKDIR /code
 COPY ./requirements.txt /code/requirements.txt
 
 # Install project dependencies.
-#RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 RUN pip install -v --no-cache-dir --upgrade -r /code/requirements.txt
 
 # Copy project files to the image.

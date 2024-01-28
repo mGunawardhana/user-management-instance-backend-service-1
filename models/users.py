@@ -1,10 +1,12 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class User(BaseModel):
+    id: str
     name: str
     email: str
-    password: str
+    password: Optional[str] = None
     mobile: Optional[str] = None
     re_type_password: Optional[str] = None
     country: Optional[str] = None
