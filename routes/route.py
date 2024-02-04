@@ -28,6 +28,7 @@ async def fetch_all_users():
 
 @router.post("/create-user", response_model=dict)
 async def create_user(user: User):
+    print(dict(user))
     try:
         inserted_id = collection_name.insert_one(dict(user)).inserted_id
         return inserted_id and {"data": {"id": str(inserted_id)},
